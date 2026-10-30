@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>万圣节解咒拼句</title>
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  color-scheme:dark;
+  --bg0:#0c0516; --bg1:#1b0a2e; --bg2:#3a1759;
+  --ink:#fff3df; --muted:#c9b6df;
+  --orange:#ff8a1f; --orange2:#ffb347; --purple:#b58cff; --teal:#7ee0c6; --pink:#ff6fa3;
+  --card:#f6e7c8; --card-edge:#b99a62; --card-ink:#2b1238;
+  --line:rgba(255,179,71,.55);
+  --fs:clamp(16px,min(2.2vw,3.8vh),44px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  height:100%;margin:0;overflow:hidden;color:var(--ink);
+  background:radial-gradient(120% 90% at 85% -10%,var(--bg2) 0%,var(--bg1) 45%,var(--bg0) 100%) var(--bg0);
+  font-family:"Trebuchet MS","Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans SC",system-ui,sans-serif;
+  -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;
+}
+input{-webkit-user-select:text;user-select:text}
+button{font:inherit;color:inherit}
+
+/* ambience */
+.moon{position:fixed;right:5vw;top:-6vh;width:min(22vw,260px);height:min(22vw,260px);border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#fff7d6,#ffe6a0 55%,#e8c56e);opacity:.14;
+  box-shadow:0 0 120px 40px rgba(255,230,160,.12);pointer-events:none;z-index:0}
+.bat{position:fixed;left:0;font-size:clamp(24px,3vw,46px);opacity:.3;pointer-events:none;z-index:0;animation:fly 28s linear infinite}
+@keyframes fly{0%{transform:translate(-10vw,0) scale(.8) rotate(-6deg)}50%{transform:translate(50vw,-4vh) scale(1.1) rotate(6deg)}100%{transform:translate(110vw,5vh) scale(.8) rotate(-6deg)}}
+
+#app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column}
+
+/* header */
+header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 20px;padding:10px 18px 6px}
+.brand{font-family:"Chiller","Jokerman","Impact",fantasy;font-size:clamp(28px,3.2vw,50px);line-height:1;color:var(--orange);
+  letter-spacing:.04em;text-shadow:0 0 18px rgba(255,138,31,.55);white-space:nowrap}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tools{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+
+.btn{min-height:48px;padding:.45em 1.05em;border-radius:999px;cursor:pointer;font-weight:600;
+  font-size:clamp(14px,1.25vw,20px);background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2);
+  transition:background .15s,transform .1s,border-color .15s;white-space:nowrap}
+.btn:active{transform:scale(.96)}
+.btn:focus-visible,.dot:focus-visible,.rbtn:focus-visible,.life:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.btn[aria-pressed=true]{background:rgba(181,140,255,.3);border-color:var(--purple)}
+.tab[aria-selected=true]{background:var(--orange);color:var(--card-ink);border-color:#ffd08a}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.btn.big{font-size:clamp(18px,1.7vw,28px);padding:.5em 1.4em}
+.btn.go{background:linear-gradient(180deg,#ffa63d,#ff7a00);color:var(--card-ink);border-color:#ffd08a;box-shadow:0 5px 0 #a24a00}
+.btn.tt{background:linear-gradient(180deg,#9a6bff,#6b3fd4);border-color:#cdb4ff;box-shadow:0 5px 0 #3f1f93;margin-left:auto}
+
+/* stage */
+main{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:0 18px 10px}
+.stage-top,.cap,.line,.actions{flex:none}
+.stage-top{display:flex;align-items:center;gap:10px 16px;flex-wrap:wrap}
+.lvl-title{font-size:clamp(20px,2.1vw,34px);font-weight:700}
+.focus{padding:4px 14px;border-radius:999px;background:rgba(255,179,71,.16);color:var(--orange2);font-weight:600;font-size:clamp(14px,1.3vw,20px)}
+.dots{display:flex;gap:8px}
+.dot{width:46px;height:46px;border-radius:50%;cursor:pointer;font-weight:700;font-size:18px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.2)}
+.dot.cur{background:var(--purple);color:var(--card-ink);border-color:#e2d3ff}
+.dot.ok{border-color:var(--teal);color:var(--teal)}
+.dot.cur.ok{color:var(--card-ink)}
+#tries{color:var(--muted);font-size:clamp(14px,1.2vw,18px)}
+#timer{margin-left:auto;position:relative;width:78px;height:78px;flex:none}
+#timer svg{width:100%;height:100%;transform:rotate(-90deg)}
+#timer circle{fill:none;stroke-width:9}
+#timer .bg{stroke:rgba(255,255,255,.12)}
+#timer .fg{stroke:var(--orange2);stroke-linecap:round;stroke-dasharray:276.46;transition:stroke-dashoffset .25s linear}
+#timer.low .fg{stroke:#ff4d6d}
+#timer.low{animation:pulse .8s ease-in-out infinite}
+#tnum{position:absolute;left:0;top:0;right:0;bottom:0;display:grid;place-items:center;font-weight:700;font-size:28px}
+@keyframes pulse{50%{transform:scale(1.1)}}
+
+.cap{color:var(--muted);font-size:clamp(13px,1.1vw,17px)}
+
+/* spell line */
+.line{position:relative;min-height:calc(var(--fs)*3.3);padding:16px;border:3px dashed var(--line);border-radius:26px;
+  background:rgba(14,5,24,.62);display:flex;flex-wrap:wrap;align-content:flex-start;align-items:center;gap:12px;
+  transition:border-color .15s,background .15s,box-shadow .2s}
+.line.hover{border-color:#fff;background:rgba(66,28,98,.75);box-shadow:0 0 32px rgba(255,179,71,.35)}
+.line.win{border-style:solid;border-color:var(--teal);box-shadow:0 0 44px rgba(126,224,198,.4)}
+.line.shake{animation:shake .5s}
+@keyframes shake{20%{transform:translateX(-14px)}40%{transform:translateX(12px)}60%{transform:translateX(-8px)}80%{transform:translateX(5px)}}
+.slot{min-width:calc(var(--fs)*2.2);height:calc(var(--fs)*1.9);border-radius:14px;border:2px dashed rgba(255,255,255,.2);
+  display:grid;place-items:center;color:rgba(255,255,255,.28);font-size:calc(var(--fs)*.6);font-weight:700}
+.marker{position:absolute;display:none;width:7px;border-radius:4px;background:var(--orange2);box-shadow:0 0 14px var(--orange2);pointer-events:none}
+
+/* word blocks */
+.r-ant{--rc:#ffb347;--re:#b9690e}
+.r-rel{--rc:#c9a5ff;--re:#7a4fc7}
+.r-cl{--rc:#8fe6d2;--re:#33907c}
+.r-main{--rc:var(--card);--re:var(--card-edge)}
+.blk{position:relative;display:inline-block;padding:.36em .85em .44em;font-size:var(--fs);font-weight:600;line-height:1.15;
+  color:var(--card-ink);background:var(--rc,var(--card));border-radius:16px;white-space:nowrap;cursor:grab;touch-action:none;
+  box-shadow:0 5px 0 var(--re,var(--card-edge)),0 12px 20px rgba(0,0,0,.45);transition:transform .15s}
+.pool .blk:nth-child(3n+1){transform:rotate(-1.6deg)}
+.pool .blk:nth-child(3n+2){transform:rotate(1.2deg) translateY(4px)}
+.pool .blk:nth-child(3n){transform:rotate(-.6deg)}
+.blk.dragging{opacity:.25}
+.blk.ghost{position:fixed;left:0;top:0;z-index:50;pointer-events:none;transition:none;
+  box-shadow:0 5px 0 var(--re,var(--card-edge)),0 24px 36px rgba(0,0,0,.55)}
+.locked .blk{cursor:not-allowed;opacity:.75}
+
+/* pool + analysis */
+.pool{flex:1 0 auto;min-height:170px;overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;gap:18px 20px;padding:20px;
+  border-radius:26px;background:rgba(255,255,255,.045);border:2px solid rgba(255,255,255,.08)}
+.pool.center{display:grid;place-items:center}
+.pool.card{display:block}
+.start{display:grid;gap:4px;padding:.7em 2em;font-size:clamp(22px,2.4vw,38px);animation:glow 2s ease-in-out infinite}
+.start small{font-size:.45em;font-weight:500;opacity:.8}
+@keyframes glow{50%{box-shadow:0 5px 0 #a24a00,0 0 36px 8px rgba(255,138,31,.55)}}
+.msg{flex-basis:100%;color:var(--muted);font-size:clamp(16px,1.5vw,24px);text-align:center;padding:1em}
+.midnight{flex-basis:100%;text-align:center;font-family:"Chiller","Jokerman","Impact",fantasy;font-size:clamp(30px,3.6vw,58px);
+  color:#ff4d6d;text-shadow:0 0 22px rgba(255,77,109,.6);letter-spacing:.05em}
+.midnight small{display:block;font-family:inherit;font-size:.36em;color:var(--muted);text-shadow:none;letter-spacing:0;
+  font-family:"Trebuchet MS","Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+
+.analysis{display:grid;gap:10px;max-width:1400px}
+.a-h{font-size:clamp(20px,2vw,32px);font-weight:700;color:var(--teal)}
+.a-sen{font-size:calc(var(--fs)*.95);line-height:2.1;font-weight:600}
+.seg{display:inline-block;padding:.08em .5em .14em;border-radius:12px;color:var(--card-ink);background:var(--rc);box-shadow:0 3px 0 var(--re);margin:0 2px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 20px;color:var(--muted);font-size:clamp(14px,1.2vw,18px)}
+.lg{display:inline-flex;align-items:center;gap:8px}
+.lg i{width:22px;height:22px;border-radius:7px;background:var(--rc);box-shadow:0 2px 0 var(--re)}
+.a-row{display:grid;gap:2px;padding:10px 16px;border-radius:16px;background:rgba(255,255,255,.06);font-size:clamp(16px,1.5vw,24px);line-height:1.4}
+.a-row b{color:var(--orange2);font-size:.8em}
+.a-score{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:clamp(16px,1.5vw,24px)}
+.a-score .btn{border-color:var(--tc);color:var(--tc)}
+.a-score .btn[disabled]{opacity:.6;color:var(--teal);border-color:var(--teal)}
+
+/* actions */
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+/* teams */
+footer{padding:0 18px 14px}
+body.noteams footer{display:none}
+.teams{display:flex;gap:12px}
+.team{flex:1;min-width:0;display:flex;align-items:center;flex-wrap:wrap;gap:4px 12px;padding:8px 14px;border-radius:18px;
+  background:rgba(255,255,255,.07);border:2px solid rgba(255,255,255,.12);border-left:8px solid var(--tc)}
+.tname{width:6.5em;min-width:0;font-weight:700;font-size:clamp(16px,1.5vw,24px);color:var(--tc);background:transparent;border:0;
+  border-bottom:2px dashed rgba(255,255,255,.22);outline:none;padding:2px 0}
+.tname:focus{border-bottom-color:var(--tc)}
+.tscore{display:flex;align-items:center;gap:8px}
+.tscore b{min-width:1.6em;text-align:center;font-size:clamp(24px,2.4vw,38px)}
+.rbtn{width:46px;height:46px;border-radius:50%;cursor:pointer;font-size:26px;font-weight:700;line-height:1;background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.22)}
+.rbtn:active{transform:scale(.92)}
+.lives{display:flex}
+.life{background:none;border:0;cursor:pointer;font-size:clamp(24px,2.2vw,34px);padding:4px 3px}
+.life.dead{opacity:.45}
+
+/* toast, modal, confetti */
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 88px);transform:translate(-50%,-10px);opacity:0;z-index:60;
+  max-width:88vw;padding:.7em 1.4em;border-radius:999px;background:#2b1238;border:2px solid var(--orange2);
+  font-size:clamp(16px,1.6vw,26px);font-weight:600;pointer-events:none;transition:opacity .2s,transform .2s;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+.modal{position:fixed;left:0;top:0;right:0;bottom:0;z-index:80;display:none;place-items:center;background:rgba(8,2,14,.8);backdrop-filter:blur(4px);cursor:pointer}
+.modal.show{display:grid}
+.tt-card{width:min(720px,88vw);padding:36px 40px;border-radius:32px;text-align:center;animation:flip .45s ease-out}
+.tt-card.trick{background:linear-gradient(160deg,#4b1d7a,#1d0a33);border:4px solid var(--purple)}
+.tt-card.treat{background:linear-gradient(160deg,#ffa23a,#c85000);color:var(--card-ink);border:4px solid #ffd9a0}
+.tt-kind{font-family:"Chiller","Jokerman","Impact",fantasy;font-size:clamp(34px,4vw,64px);letter-spacing:.06em}
+.tt-icon{font-size:clamp(64px,8vw,120px);line-height:1.1}
+.tt-name{font-size:clamp(24px,2.8vw,42px);font-weight:700;margin:.2em 0}
+.tt-text{font-size:clamp(18px,2vw,30px);line-height:1.5}
+.tt-close{margin-top:1em;font-size:14px;opacity:.7}
+@keyframes flip{from{transform:rotateY(90deg) scale(.8);opacity:0}}
+.fall{position:fixed;top:-8vh;z-index:70;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(118vh) rotate(540deg)}}
+
+.short{display:none}
+@media (max-height:860px){
+  header{padding:6px 14px 2px;gap:6px 14px}
+  .btn{min-height:42px}
+  .dot{width:40px;height:40px;font-size:16px}
+  #timer{width:60px;height:60px}
+  #tnum{font-size:22px}
+  main{gap:6px;padding:0 14px 6px}
+  .cap{display:none}
+  .line{padding:10px;gap:10px}
+  .pool{padding:14px;gap:14px 16px}
+  footer{padding:0 14px 8px}
+  .team{padding:4px 10px;gap:2px 8px}
+  .tname{width:4.4em;font-size:16px}
+  .rbtn{width:36px;height:36px;font-size:22px}
+  .tscore{gap:6px}
+  .tscore b{font-size:24px}
+  .life{font-size:22px;padding:2px 1px}
+}
+@media (max-width:900px){.teams{flex-wrap:wrap}.team{flex-basis:45%}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="moon"></div>
+<span class="bat" style="top:9vh;animation-delay:-4s">🦇</span>
+<span class="bat" style="top:24vh;animation-delay:-15s;animation-duration:36s">🦇</span>
+<span class="bat" style="top:55vh;animation-delay:-22s;animation-duration:32s">🦇</span>
+
+<div id="app">
+  <header>
+    <div class="brand">Spell Scramble</div>
+    <nav class="tabs" id="tabs" aria-label="关卡"></nav>
+    <div class="tools">
+      <button class="btn" id="tHint" aria-pressed="true">🎨 颜色提示</button>
+      <button class="btn" id="tExtra" aria-pressed="false">👻 干扰词</button>
+      <button class="btn" id="tTime">⏱ 60秒</button>
+      <button class="btn" id="tTeams">👥 4队</button>
+      <button class="btn" id="tSnd" aria-pressed="true" aria-label="声音">🔊</button>
+      <button class="btn" id="tFs" aria-label="全屏">⛶</button>
+    </div>
+  </header>
+
+  <main id="stage">
+    <div class="stage-top">
+      <div class="lvl-title" id="lvTitle"></div>
+      <div class="focus" id="focus"></div>
+      <div class="dots" id="dots"></div>
+      <div id="tries"></div>
+      <div id="timer" aria-live="off">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="bg" cx="50" cy="50" r="44"/><circle class="fg" id="ring" cx="50" cy="50" r="44"/></svg>
+        <span id="tnum">60</span>
+      </div>
+    </div>
+    <div class="cap">📜 咒语栏:把词块拖进来(点一下词块也会自动放入),点已放入的词块可以退回。</div>
+    <div id="line" class="line"></div>
+    <div class="actions">
+      <button class="btn" id="bPrev">◀ 上一句</button>
+      <button class="btn" id="bReset">↺ 重排</button>
+      <button class="btn" id="bReveal">👁 看答案</button>
+      <button class="btn big go" id="bCheck">验咒 ✔</button>
+      <button class="btn" id="bNext">下一句 ▶</button>
+      <button class="btn big tt" id="bTT">🎁 Trick or Treat</button>
+    </div>
+    <div id="pool" class="pool"></div>
+  </main>
+
+  <footer><div class="teams" id="teams"></div></footer>
+</div>
+
+<div id="fatal" style="display:none;position:fixed;left:0;right:0;top:0;z-index:99;padding:16px 20px;background:#7a1230;color:#fff;font-size:18px;line-height:1.5"></div>
+<div id="toast" role="status"></div>
+<div id="modal" class="modal" aria-live="polite"></div>
+
+<script>
+window.addEventListener('error',function(e){
+  var f=document.getElementById('fatal');
+  f.style.display='block';
+  f.textContent='页面运行出错,请换用新版 Chrome 或 Edge 浏览器打开(360 浏览器请切换到“极速模式”)。错误信息:'+(e.message||'未知');
+});
+(()=>{
+'use strict';
+
+/* ---------- 题库:[词块, 角色] ----------
+   角色: ant 先行词 / rel 关系词 / cl 从句其余部分 / main 主句
+   x = 干扰词(吸血鬼偷偷混入的多余词块) */
+const LEVELS=[
+ {name:'墓地',icon:'👻',focus:'which / who 引导的限制性定语从句',S:[
+  {c:[['I don’t believe','main'],['the reason','ant'],['which he gave me','rel'],['for cutting down trees.','main']],x:'whose',
+   alts:[[0,1,3,2]],
+   skel:'I don’t believe the reason for cutting down trees.',
+   note:'which 指代 the reason,在从句中作 gave 的宾语,可以省略(the reason he gave me…)。for cutting down trees 也可以紧跟在 the reason 后面,两种顺序都算对。'},
+  {c:[['The bike','ant'],['which he bought','rel'],['last month','cl'],['was stolen','main'],['on the street','main'],['yesterday afternoon.','main']],x:'who',
+   alts:[[0,1,2,3,5,4]],
+   skel:'The bike was stolen on the street yesterday afternoon.',
+   note:'which 指代 The bike,在从句中作 bought 的宾语,可以省略(The bike he bought last month…)。on the street 和 yesterday afternoon 的先后顺序都可以。'},
+  {c:[['The student','ant'],['who won','rel'],['the first prize','cl'],['in the English competition','cl'],['is my friend.','main']],x:'which',
+   skel:'The student is my friend.',
+   note:'who 指代 The student,在从句中作主语,不能省略;先行词是人,可以用 who / that。'},
+  {c:[['The scientist','ant'],['who we interviewed','rel'],['last week','cl'],['has made','main'],['great achievements','main'],['in AI research.','main']],x:'where',
+   skel:'The scientist has made great achievements in AI research.',
+   note:'who 指代 The scientist,在从句中作 interviewed 的宾语。正式写作中宾语用 whom,口语中常用 who,也可以换成 that 或省略。'}
+ ]},
+ {name:'女巫厨房',icon:'🕷️',focus:'whose / when / where',S:[
+  {c:[['The book','ant'],['whose cover','rel'],['is blue','cl'],['belongs to','main'],['my deskmate.','main']],x:'which',
+   skel:'The book belongs to my deskmate.',
+   note:'whose cover = the book’s cover,whose 表所属,后面必须接名词(cover),不能省略;先行词是物时也可以用 whose。'},
+  {c:[['I still remember','main'],['the day','ant'],['when we first watched','rel'],['the monarch butterflies','cl'],['flying.','cl']],x:'where',
+   skel:'I still remember the day.',
+   note:'when 指代 the day,在从句中作时间状语(= on which)。'},
+  {c:[['We have come to','main'],['a situation','ant'],['where we need to protect','rel'],['the natural environment','cl'],['right away.','cl']],x:'when',
+   skel:'We have come to a situation.',
+   note:'where 指代 a situation,在从句中作状语(= in which);situation、case、stage 这类抽象名词也常用 where 引导定语从句。'}
+ ]},
+ {name:'吸血鬼城堡',icon:'🦇',focus:'非限制性定语从句(逗号 + which / who / when)',S:[
+  {c:[['He missed','ant'],['the early bus,','ant'],['which made','rel'],['him late','cl'],['for school again.','cl']],x:'that',
+   skel:'He missed the early bus.',
+   note:'非限制性定语从句,前面用逗号隔开。which 指代前面整个句子(他错过早班车这件事),在从句中作主语,不能换成 that。'},
+  {c:[['The characters','ant'],['in this book,','ant'],['who tried hard','rel'],['to change their life','cl'],['despite difficulties and sufferings,','cl'],['inspired','main'],['millions of readers.','main']],x:'whom',
+   skel:'The characters in this book inspired millions of readers.',
+   note:'非限制性定语从句,前后各用逗号隔开。who 指代 The characters(in this book 是它的后置定语),在从句中作主语。'},
+  {c:[['The Dragon Boat Festival,','ant'],['when people eat zongzi','rel'],['and race dragon boats,','cl'],['has been','main'],['a traditional Chinese holiday','main'],['for over 2,000 years.','main']],x:'where',
+   skel:'The Dragon Boat Festival has been a traditional Chinese holiday for over 2,000 years.',
+   note:'非限制性定语从句,前后各用逗号隔开。when 指代 The Dragon Boat Festival,在从句中作时间状语(= on which)。'}
+ ]}
+];
+
+const TREAT=[
+ ['🍬','糖果奖励','本队立刻 +1 分!'],
+ ['🛡️','免死金牌','本队恢复一个南瓜 🎃,或抵消下一次扣命。'],
+ ['🔮','水晶球','下一轮开始前,本队可以偷看答案 5 秒。'],
+ ['🦇','蝙蝠求助','下一轮可以向其他队借一位“指挥官”帮忙喊话。'],
+ ['⏰','时间魔法','下一轮本队额外获得 15 秒。']
+];
+const TRICK=[
+ ['🕷️','蜘蛛网缠身','下一轮本队时间减少 15 秒。'],
+ ['🎃','口头造句','30 秒内用 who 或 which 说一个万圣节定语从句,说对才算过关。'],
+ ['🤐','哑巴咒','下一轮台下队友不能说话,只能用手势指挥。'],
+ ['📝','改写挑战','把 “The ghost lives in the castle. The ghost comes out at midnight.” 合并成一个含定语从句的句子。'],
+ ['🔁','幽灵换位','和旁边的队互换一次指挥员。']
+];
+
+const TEAM_DEF=[['南瓜队','#ff8a1f'],['蝙蝠队','#b58cff'],['幽灵队','#7ee0c6'],['女巫队','#ff6fa3'],['蜘蛛队','#ffd84d'],['黑猫队','#7fb4ff']];
+const TIMES=[30,60,90,0];
+const TEAM_COUNTS=[2,3,4,5,6,0];
+const RING=276.46;
+
+const S={
+  lv:0,i:0,status:'ready',  // ready | playing | solved | revealed | timeout
+  items:[],order:[],placed:[],tries:0,
+  hint:true,extra:false,secs:60,timerOn:true,left:60,t0:0,tmr:null,
+  mute:false,done:new Set(),
+  teams:TEAM_DEF.map(([n,c])=>({n,c,score:0,lives:3})),teamCount:4
+};
+
+const $=s=>document.querySelector(s);
+const el=(tag,cls,txt)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e};
+const line=$('#line'),pool=$('#pool'),marker=el('div','marker');
+const cur=()=>LEVELS[S.lv].S[S.i];
+const clear=n=>{while(n.firstChild)n.removeChild(n.firstChild)};
+
+/* ---------- 声音 ---------- */
+let ac=null;
+function tone(f,d,type='sine',v=.12,delay=0){
+  if(S.mute)return;
+  try{
+    ac=ac||new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(),g=ac.createGain(),t0=ac.currentTime+delay;
+    o.type=type;o.frequency.value=f;o.connect(g);g.connect(ac.destination);
+    g.gain.setValueAtTime(v,t0);g.gain.exponentialRampToValueAtTime(.001,t0+d);
+    o.start(t0);o.stop(t0+d);
+  }catch(_){}
+}
+const sfx={
+  pop:()=>tone(520,.08,'triangle'),
+  ok:()=>[523,659,784,1047].forEach((f,k)=>tone(f,.28,'triangle',.12,k*.1)),
+  bad:()=>{tone(180,.3,'sawtooth',.09);tone(140,.35,'sawtooth',.09,.12)},
+  bell:()=>{tone(220,1,'sine',.2);tone(165,1.3,'sine',.2,.45)}
+};
+
+/* ---------- 题目初始化 ---------- */
+function scramble(ids,n){
+  const ident=ids.filter(i=>i<n).join();
+  let a,k=0;
+  do{
+    a=ids.slice();
+    for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+    k++;
+  }while(a.filter(i=>i<n).join()===ident&&k<30);
+  return a;
+}
+function setup(){
+  stopTimer();
+  const c=cur(),n=c.c.length;
+  S.items=c.c.map(([t,r],i)=>({id:i,t,r}));
+  if(S.extra&&c.x)S.items.push({id:n,t:c.x,r:'x'});
+  S.order=scramble(S.items.map(x=>x.id),n);
+  S.placed=[];S.tries=0;S.left=S.secs;
+  S.status=S.timerOn?'ready':'playing';
+  render();
+}
+function applyLevelDefaults(){S.hint=S.lv===0;S.extra=S.lv===2}
+
+/* ---------- 计时 ---------- */
+function startGame(){
+  if(S.status!=='ready')return;
+  S.status='playing';S.t0=Date.now();
+  S.tmr=setInterval(tick,200);
+  sfx.pop();render();tick();
+}
+function stopTimer(){clearInterval(S.tmr);S.tmr=null}
+function tick(){
+  if(S.status!=='playing'||!S.timerOn)return;
+  S.left=Math.max(0,S.secs-(Date.now()-S.t0)/1000);
+  drawTimer();
+  if(S.left<=0){stopTimer();S.status='timeout';sfx.bell();render()}
+}
+function drawTimer(){
+  const t=$('#timer'),num=$('#tnum'),ring=$('#ring');
+  if(!S.timerOn){num.textContent='∞';ring.style.strokeDashoffset=0;t.classList.remove('low');return}
+  const left=S.status==='ready'?S.secs:S.left;
+  num.textContent=Math.ceil(left);
+  ring.style.strokeDashoffset=(RING*(1-left/S.secs)).toFixed(1);
+  t.classList.toggle('low',S.status==='playing'&&left<=10);
+}
+
+/* ---------- 渲染 ---------- */
+function render(){renderHead();renderLine();renderPool();renderBtns();drawTimer()}
+
+function renderHead(){
+  document.querySelectorAll('#tabs .tab').forEach((b,k)=>b.setAttribute('aria-selected',String(k===S.lv)));
+  const L=LEVELS[S.lv];
+  $('#lvTitle').textContent=`${L.icon} 关卡${['一','二','三'][S.lv]} · ${L.name}`;
+  $('#focus').textContent=L.focus;
+  const d=$('#dots');clear(d);
+  L.S.forEach((_,k)=>{
+    const ok=S.done.has(S.lv+'-'+k);
+    const b=el('button','dot'+(k===S.i?' cur':'')+(ok?' ok':''),ok?'✓':String(k+1));
+    b.dataset.k=k;b.setAttribute('aria-label','第'+(k+1)+'句');d.append(b);
+  });
+  $('#tHint').setAttribute('aria-pressed',String(S.hint));
+  $('#tExtra').setAttribute('aria-pressed',String(S.extra));
+  $('#tTime').textContent=S.timerOn?`⏱ ${S.secs}秒`:'⏱ 不限时';
+  $('#tTeams').textContent=S.teamCount?`👥 ${S.teamCount}队`:'👥 隐藏';
+  $('#tSnd').setAttribute('aria-pressed',String(!S.mute));
+  $('#tSnd').textContent=S.mute?'🔇':'🔊';
+}
+
+function mkBlock(id,role){
+  const it=S.items[id];
+  const b=el('div','blk'+(role&&it.r!=='x'?' r-'+it.r:''),it.t);
+  b.dataset.id=id;return b;
+}
+
+function renderLine(){
+  const n=cur().c.length,st=S.status;
+  const win=st==='solved',showRole=S.hint||win||st==='revealed';
+  line.className='line'+(win?' win':'')+(st==='timeout'?' locked':'');
+  clear(line);
+  S.placed.forEach(id=>line.append(mkBlock(id,showRole)));
+  if(st==='ready'||st==='playing'||st==='timeout'){
+    for(let k=S.placed.length;k<n;k++)line.append(el('div','slot',String(k+1)));
+  }
+  line.append(marker);
+}
+
+function renderPool(){
+  clear(pool);pool.className='pool';
+  const st=S.status;
+  if(st==='ready'){
+    pool.classList.add('center');
+    const b=el('button','btn big go start');b.id='bStart';
+    b.append(el('span',null,'🔮 开始施咒'),el('small',null,S.timerOn?`点击后开始 ${S.secs} 秒倒计时,词块会出现`:'点击后词块会出现'));
+    pool.append(b);return;
+  }
+  if(st==='solved'||st==='revealed'){pool.classList.add('card');pool.append(buildAnalysis());return}
+  if(st==='timeout'){
+    pool.classList.add('locked');
+    const m=el('div','midnight','Midnight!');
+    m.append(el('small',null,'午夜钟响,咒语失败。点“看答案”揭晓,或点“重排”再来一次。'));
+    pool.append(m);
+  }
+  S.order.filter(id=>!S.placed.includes(id)).forEach(id=>pool.append(mkBlock(id,S.hint)));
+  if(st==='playing'&&!pool.querySelector('.blk'))pool.append(el('div','msg','词块都放进咒语栏了,点“验咒 ✔”试试!'));
+}
+
+function buildAnalysis(){
+  const c=cur(),box=el('div','analysis');
+  box.append(el('div','a-h',S.status==='solved'?'✨ 咒语解除!全班一起大声读上面的句子,再回答:':'👁 正确咒语,全班一起读上面的句子,再回答:'));
+  const lg=el('div','legend');
+  [['ant','先行词'],['rel','关系词'],['cl','从句其余部分'],['main','主句']].forEach(([r,t])=>{
+    const s=el('span','lg');s.append(el('i','r-'+r),t);lg.append(s);
+  });
+  const row=(label,txt)=>{const r=el('div','a-row');r.append(el('b',null,label),el('span',null,txt));return r};
+  box.append(lg,row('🔍 去掉从句,主句还通顺吗?',c.skel),row('🧠 关系词追问',c.note));
+  if(S.items.length>c.c.length)box.append(row('👻 被踢出的干扰词',`${c.x} —— 它不属于这句咒语`));
+  if(S.status==='solved'&&S.teamCount>0){
+    const sc=el('div','a-score');sc.append(el('b',null,'🍬 加分给:'));
+    S.teams.slice(0,S.teamCount).forEach((t,k)=>{
+      const b=el('button','btn',`${t.n} +2`);b.dataset.tm=k;b.style.setProperty('--tc',t.c);sc.append(b);
+    });
+    box.append(sc);
+  }
+  return box;
+}
+
+function renderBtns(){
+  const st=S.status;
+  $('#bCheck').disabled=st!=='playing';
+  $('#bReveal').disabled=!(st==='playing'||st==='timeout');
+  $('#tries').textContent=S.tries&&st==='playing'?`已尝试 ${S.tries} 次`:'';
+}
+
+/* ---------- 拖拽 ---------- */
+let drag=null;
+const lineBlocks=()=>[...line.querySelectorAll('.blk')].filter(b=>!b.classList.contains('dragging'));
+function calcIndex(x,y){
+  const bs=lineBlocks();
+  if(!bs.length)return 0;
+  let best=0,bd=1e9,after=false;
+  bs.forEach((b,i)=>{
+    const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+    const d=Math.hypot(x-cx,(y-cy)*2);
+    if(d<bd){bd=d;best=i;after=x>cx}
+  });
+  return after?best+1:best;
+}
+function showMarker(idx){
+  const bs=lineBlocks();
+  if(!bs.length){marker.style.display='none';return}
+  const lr=line.getBoundingClientRect();
+  let r,x;
+  if(idx<bs.length){r=bs[idx].getBoundingClientRect();x=r.left-9}
+  else{r=bs[bs.length-1].getBoundingClientRect();x=r.right+5}
+  marker.style.display='block';
+  marker.style.left=(x-lr.left-line.clientLeft)+'px';
+  marker.style.top=(r.top-lr.top-line.clientTop)+'px';
+  marker.style.height=r.height+'px';
+}
+function endDrag(){
+  if(drag&&drag.ghost)drag.ghost.remove();
+  marker.style.display='none';line.classList.remove('hover');
+  drag=null;
+}
+document.addEventListener('pointerdown',e=>{
+  if(S.status!=='playing'||drag)return;
+  if(e.pointerType==='mouse'&&e.button!==0)return;
+  const b=e.target.closest&&e.target.closest('.blk');
+  if(!b||(b.parentElement!==line&&b.parentElement!==pool))return;
+  drag={id:+b.dataset.id,el:b,pid:e.pointerId,from:b.parentElement===line?'line':'pool',sx:e.clientX,sy:e.clientY,moved:false,ghost:null,w:0,h:0,idx:null};
+  try{b.setPointerCapture(e.pointerId)}catch(_){}
+});
+document.addEventListener('pointermove',e=>{
+  if(!drag||e.pointerId!==drag.pid)return;
+  if(!drag.moved){
+    if(Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<8)return;
+    drag.moved=true;
+    const r=drag.el.getBoundingClientRect();drag.w=r.width;drag.h=r.height;
+    const g=drag.el.cloneNode(true);g.classList.add('ghost');g.style.width=r.width+'px';
+    document.body.append(g);drag.ghost=g;drag.el.classList.add('dragging');
+  }
+  drag.ghost.style.transform=`translate(${e.clientX-drag.w/2}px,${e.clientY-drag.h/2}px) rotate(-3deg) scale(1.07)`;
+  const r=line.getBoundingClientRect();
+  const inside=e.clientX>r.left-16&&e.clientX<r.right+16&&e.clientY>r.top-16&&e.clientY<r.bottom+16;
+  line.classList.toggle('hover',inside);
+  if(inside){drag.idx=calcIndex(e.clientX,e.clientY);showMarker(drag.idx)}
+  else{drag.idx=null;marker.style.display='none'}
+});
+document.addEventListener('pointerup',e=>{
+  if(!drag||e.pointerId!==drag.pid)return;
+  const d=drag;endDrag();
+  if(S.status!=='playing'){render();return}
+  if(!d.moved){
+    if(d.from==='pool')S.placed.push(d.id);
+    else S.placed=S.placed.filter(x=>x!==d.id);
+  }else if(d.idx!=null){
+    S.placed=S.placed.filter(x=>x!==d.id);
+    S.placed.splice(Math.min(d.idx,S.placed.length),0,d.id);
+  }else if(d.from==='line'){
+    S.placed=S.placed.filter(x=>x!==d.id);
+  }
+  sfx.pop();render();
+});
+document.addEventListener('pointercancel',e=>{
+  if(!drag||e.pointerId!==drag.pid)return;
+  endDrag();render();
+});
+document.addEventListener('contextmenu',e=>e.preventDefault());
+
+/* ---------- 验咒 / 结果 ---------- */
+let toastT;
+function toast(m){
+  const t=$('#toast');t.textContent=m;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function fail(msg){
+  line.classList.remove('shake');void line.offsetWidth;line.classList.add('shake');
+  sfx.bad();toast(msg);renderBtns();
+}
+function check(){
+  if(S.status!=='playing')return;
+  const c=cur(),n=c.c.length;
+  S.tries++;
+  if(S.placed.some(id=>id>=n))return fail('混进了一个不属于这句咒语的词!把它请出去 👻');
+  if(S.placed.length<n)return fail(`咒语还不完整,还差 ${n-S.placed.length} 块`);
+  const orders=[c.c.map((_,k)=>k)].concat(c.alts||[]);
+  const wrong=Math.min(...orders.map(o=>S.placed.filter((id,k)=>id!==o[k]).length));
+  if(wrong)return fail(`咒语失效!还有 ${wrong} 个词块位置不对`);
+  stopTimer();S.status='solved';S.done.add(S.lv+'-'+S.i);
+  sfx.ok();confetti();render();
+}
+function reveal(){
+  if(S.status!=='playing'&&S.status!=='timeout')return;
+  stopTimer();S.placed=cur().c.map((_,k)=>k);S.status='revealed';render();
+}
+function confetti(n=36){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const E=['🎃','🦇','👻','🍬','🕸️','⭐'];
+  for(let i=0;i<n;i++){
+    const s=el('span','fall',E[i%E.length]);
+    s.style.left=Math.random()*100+'vw';
+    s.style.fontSize=(20+Math.random()*26)+'px';
+    s.style.animationDuration=(2.2+Math.random()*2)+'s';
+    s.style.animationDelay=(Math.random()*.6)+'s';
+    document.body.append(s);setTimeout(()=>s.remove(),5400);
+  }
+}
+
+/* ---------- 导航 ---------- */
+function goPrev(){
+  if(S.i>0)S.i--;
+  else if(S.lv>0){S.lv--;S.i=LEVELS[S.lv].S.length-1;applyLevelDefaults()}
+  setup();
+}
+function goNext(){
+  if(S.i<LEVELS[S.lv].S.length-1)S.i++;
+  else if(S.lv<LEVELS.length-1){S.lv++;S.i=0;applyLevelDefaults()}
+  else{S.lv=0;S.i=0;applyLevelDefaults();toast('🎉 三关全部通关!从头再来一遍吧');confetti(48)}
+  setup();
+}
+function goLevel(l){S.lv=l;S.i=0;applyLevelDefaults();setup()}
+
+/* ---------- Trick or Treat ---------- */
+function drawCard(){
+  const treat=Math.random()<.5,pool_=treat?TREAT:TRICK;
+  const [icon,name,text]=pool_[Math.floor(Math.random()*pool_.length)];
+  const m=$('#modal');clear(m);
+  const c=el('div','tt-card '+(treat?'treat':'trick'));
+  c.append(el('div','tt-kind',treat?'TREAT!':'TRICK!'),el('div','tt-icon',icon),el('div','tt-name',name),el('div','tt-text',text),el('div','tt-close','点任意位置关闭'));
+  m.append(c);m.classList.add('show');
+  treat?sfx.ok():sfx.bad();
+}
+
+/* ---------- 计分板 ---------- */
+function renderTeams(){
+  const box=$('#teams');clear(box);
+  document.body.classList.toggle('noteams',S.teamCount===0);
+  S.teams.slice(0,S.teamCount).forEach((t,k)=>{
+    const d=el('div','team');d.style.setProperty('--tc',t.c);
+    const inp=el('input','tname');inp.value=t.n;inp.maxLength=8;inp.dataset.k=k;inp.setAttribute('aria-label','队名');
+    const sc=el('div','tscore');
+    const m=el('button','rbtn','−'),p=el('button','rbtn','+');
+    m.dataset.a='m';p.dataset.a='p';m.dataset.k=p.dataset.k=k;
+    m.setAttribute('aria-label','减分');p.setAttribute('aria-label','加分');
+    sc.append(m,el('b',null,String(t.score)),p);
+    const lv=el('div','lives');
+    for(let j=0;j<3;j++){
+      const alive=j<t.lives;
+      const b=el('button','life'+(alive?'':' dead'),alive?'🎃':'💀');
+      b.dataset.a='l';b.dataset.k=k;b.dataset.j=j;b.setAttribute('aria-label',alive?'扣一条命':'恢复一条命');lv.append(b);
+    }
+    d.append(inp,sc,lv);box.append(d);
+  });
+}
+$('#teams').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const t=S.teams[+b.dataset.k];if(!t)return;
+  const a=b.dataset.a;
+  if(a==='p')t.score++;
+  else if(a==='m')t.score=Math.max(0,t.score-1);
+  else if(a==='l'){t.lives=(+b.dataset.j<t.lives)?Math.max(0,t.lives-1):Math.min(3,t.lives+1)}
+  sfx.pop();renderTeams();
+});
+$('#teams').addEventListener('input',e=>{
+  if(e.target.classList.contains('tname'))S.teams[+e.target.dataset.k].n=e.target.value;
+});
+
+/* ---------- 事件绑定 ---------- */
+LEVELS.forEach((L,k)=>{
+  const b=el('button','btn tab',`${['①','②','③'][k]} ${L.name}`);
+  b.dataset.l=k;b.setAttribute('role','tab');$('#tabs').append(b);
+});
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)goLevel(+b.dataset.l)});
+$('#dots').addEventListener('click',e=>{const b=e.target.closest('.dot');if(b){S.i=+b.dataset.k;setup()}});
+pool.addEventListener('click',e=>{if(e.target.closest('#bStart'))startGame()});
+pool.addEventListener('click',e=>{
+  const b=e.target.closest('[data-tm]');if(!b||b.disabled)return;
+  S.teams[+b.dataset.tm].score+=2;b.disabled=true;b.textContent=S.teams[+b.dataset.tm].n+' ✓ +2';
+  sfx.ok();renderTeams();
+});
+$('#bPrev').onclick=goPrev;
+$('#bNext').onclick=goNext;
+$('#bReset').onclick=setup;
+$('#bReveal').onclick=reveal;
+$('#bCheck').onclick=check;
+$('#bTT').onclick=drawCard;
+$('#modal').onclick=()=>$('#modal').classList.remove('show');
+$('#tHint').onclick=()=>{S.hint=!S.hint;render()};
+$('#tExtra').onclick=()=>{S.extra=!S.extra;setup()};
+$('#tTime').onclick=()=>{
+  const k=(TIMES.indexOf(S.timerOn?S.secs:0)+1)%TIMES.length;
+  S.secs=TIMES[k]||60;S.timerOn=TIMES[k]>0;setup();
+};
+$('#tTeams').onclick=()=>{
+  S.teamCount=TEAM_COUNTS[(TEAM_COUNTS.indexOf(S.teamCount)+1)%TEAM_COUNTS.length];
+  renderTeams();render();
+};
+$('#tSnd').onclick=()=>{S.mute=!S.mute;render()};
+$('#tFs').onclick=()=>{
+  try{
+    if(document.fullscreenElement)document.exitFullscreen();
+    else document.documentElement.requestFullscreen().catch(()=>toast('这里不支持全屏,可以按 F11 试试'));
+  }catch(_){toast('这里不支持全屏,可以按 F11 试试')}
+};
+
+renderTeams();
+setup();
+})();
+</script>
+</body>
+</html>
